@@ -40,7 +40,7 @@ var cdata = '"sessionId (text)","page (text)","latency (number)","timeOnPage (nu
 
 var exec = require('child_process').execSync;
 
-var stat = require('./garbage_stats_streaming.js'),
+var stat = new (require('./garbage_stats_streaming.js'))(),
     CSV  = new (require('./garbage_csv.js'))(stat),
     CLA  = require('./garbage_cla.js'),
 

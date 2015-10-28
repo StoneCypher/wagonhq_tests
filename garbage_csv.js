@@ -18,24 +18,9 @@ class csv_parser {
 
   constructor(stat) { this.stat = stat; }
 
-  num_or_throw(inp) { var pf = parseFloat(inp); if (!isNaN(pf) && isFinite(inp)) { return pf; } else { throw 'requires numeric'; } }
-
   p_row       (r,h) { return r.split(',').map( (cell,i) => (cell === '')? null : this.by_type(cell, i, h[i][1]) ); }
   p_hdr_cell  (hc)  { return hc.substring(0, hc.length-1).split(' ('); }
   p_header    (hdr) { return hdr.substring(1, hdr.length-1).split('","').map(this.p_hdr_cell); }
-
-  newstat(kind) {
-    switch (kind) {
-      case 'text'   : return { nulls: 0, notnulls: 0 };
-      case 'number' : return { nulls: 0, notnulls: 0, avg_r: 0, avg_c: 0 };
-    }
-  }
-
-  init_stats(headers) {
-    this.stats = [];
-    headers.map( (header,i) => this.stats[i] = this.newstat(header[1]) );
-    console.log(JSON.stringify(this.stats));
-  }
 
   num_or_throw(inp) {
     var pf = parseFloat(inp);
@@ -53,7 +38,7 @@ class csv_parser {
 
     var rows    = csv.split('\n'),
         headers = this.p_header(rows.shift()),
-        _res    = this.init_stats(headers),
+        stats   = this.stat.init_stats(headers),
         row_h   = row => this.p_row(row, headers),
         data    = rows.map(row_h);
 
