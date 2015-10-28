@@ -40,9 +40,9 @@ var cdata = '"sessionId (text)","page (text)","latency (number)","timeOnPage (nu
 
 var exec = require('child_process').execSync;
 
-var CSV  = require('./garbage_csv.js'),
+var stat = require('./garbage_stats_streaming.js'),
+    CSV  = new (require('./garbage_csv.js'))(stat),
     CLA  = require('./garbage_cla.js'),
-    stat = require('./garbage_stats_streaming.js'),
 
     cmd  = CLA.nogen? 'node ./fakegen.js' : ('./generator' + (CLA.n? (' ' + CLA.n.toString()) : '')),
     data = exec(cmd).toString().trim();
