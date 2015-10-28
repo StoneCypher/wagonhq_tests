@@ -17,12 +17,10 @@ module.exports = class {
   init_stats(headers) {
     var stats = [];
     headers.map( (header,i) => stats[i] = this.newstat(header[1]) );
-    console.log(JSON.stringify(stats));
     return stats;
   }
 
   isLonger(one, other) {
-    console.log('comparing "' + one.toString() + '" to "' + other.toString() + '"');
     if (one.length > other.length)    { return true; }
     if (one.length < other.length)    { return false; }
     return one > other;
@@ -30,7 +28,7 @@ module.exports = class {
 
   update(stats, data, pos, rtype) {
     var s = stats[pos];
-    s[data === null? 'nulls' : 'notnulls'] += 1;
+    s[(data === null)? 'nulls' : 'notnulls'] += 1;
 
     if (data === null) { return; }
 
@@ -62,7 +60,22 @@ module.exports = class {
   }
 
   finalize(stat_counters) {
-    return stat_counters;
+
+    return stat_counters.map( (col,i) => {
+      col.rows = col.nulls + col.notnulls;  // not sure why we're computing this; it's always the same number
+
+      switch (col.kind) {
+
+        case 'number':
+          col.avg = (col.avg_c === 0)? 0 : (col.avg_r / col.avg_c);
+          return col;
+
+        case 'text':
+          col.avg_l = (col.avg_l_c === 0)? 0 : (col.avg_l_r / col.avg_l_c);
+          return col;
+
+      }
+    });
   }
 
   newstat(kind) {

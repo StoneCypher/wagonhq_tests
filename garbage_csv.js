@@ -18,7 +18,7 @@ class csv_parser {
 
   constructor(stat) { this.stat = stat; }
 
-  p_row       (r,h) { return r.split(',').map( (cell,i) => (cell === '')? null : this.by_type(cell, i, h[i][1]) ); }
+  p_row       (r,h) { return r.split(',').map( (cell,i) => this.by_type((cell === '')? null : cell, i, h[i][1]) ); }
   p_hdr_cell  (hc)  { return hc.substring(0, hc.length-1).split(' ('); }
   p_header    (hdr) { return hdr.substring(1, hdr.length-1).split('","').map(this.p_hdr_cell); }
 
@@ -28,7 +28,8 @@ class csv_parser {
 
   num_or_throw(inp) {
     var pf = parseFloat(inp);
-    if (!isNaN(pf) && isFinite(inp)) { return pf; } else { throw 'requires numeric'; }
+    if (inp === null) { return null; }
+    if (!isNaN(pf) && isFinite(inp)) { return pf; } else { console.log(JSON.stringify(inp)); throw 'requires numeric'; }
   }
 
   by_type(data, pos, rtype) {
