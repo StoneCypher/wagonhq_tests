@@ -38,12 +38,17 @@
 
 var cdata = '"sessionId (text)","page (text)","latency (number)","timeOnPage (number)"\nb9130c05,welcome,7,31.032\nb89c60d2,welcome,9,31.891';
 
-var exec = require('child_process').exec;
+var exec = require('child_process').execSync;
 
 var CSV  = require('./garbage_csv.js'),
     CLA  = require('./garbage_cla.js'),
-    cmd  = CLA.nogen? 'node ./fakegen.js' : ('./generator' + (CLA.n? (' ' + CLA.n.toString()) : ''));
+    stat = require('./garbage_stats_streaming.js'),
+
+    cmd  = CLA.nogen? 'node ./fakegen.js' : ('./generator' + (CLA.n? (' ' + CLA.n.toString()) : '')),
+    data = exec(cmd).toString().trim();
 
 console.log(cmd);
 console.log(JSON.stringify(CLA));
-console.log(CSV.p_csv(cdata));
+console.log(CSV.p_csv(cdata, stat));
+
+console.log(data.length.toString());
