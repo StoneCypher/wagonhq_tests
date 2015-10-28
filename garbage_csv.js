@@ -22,27 +22,42 @@ class csv_parser {
   p_hdr_cell  (hc)  { return hc.substring(0, hc.length-1).split(' ('); }
   p_header    (hdr) { return hdr.substring(1, hdr.length-1).split('","').map(this.p_hdr_cell); }
 
+  reset_stats() {
+    this.stats = this.stat.init_stats(this.headers);
+  }
+
   num_or_throw(inp) {
     var pf = parseFloat(inp);
     if (!isNaN(pf) && isFinite(inp)) { return pf; } else { throw 'requires numeric'; }
   }
 
   by_type(data, pos, rtype) {
+
     switch (rtype) {
-      case 'text'   : return data;
-      case 'number' : return this.num_or_throw(data);
+
+      case 'text'   :
+        this.stat.update(this.stats, data, pos, rtype);
+        return data;
+
+      case 'number' :
+        var d = this.num_or_throw(data);
+        this.stat.update(this.stats, d, pos, rtype);
+        return d;
+
     }
   }
 
   p_csv(csv) {
 
-    var rows    = csv.split('\n'),
-        headers = this.p_header(rows.shift()),
-        stats   = this.stat.init_stats(headers),
-        row_h   = row => this.p_row(row, headers),
-        data    = rows.map(row_h);
+    this.rows    = csv.split('\n');
+    this.headers = this.p_header(this.rows.shift());
 
-    return {headers: headers, data: data};
+    this.reset_stats();
+
+    var row_h    = row => this.p_row(row, this.headers);
+    this.data    = this.rows.map(row_h);
+
+    return {headers: this.headers, data: this.data};
 
   }
 
