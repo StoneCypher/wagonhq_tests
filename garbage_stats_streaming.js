@@ -9,7 +9,7 @@
 //  Rules:
 //
 //  * For all columns, count rows, nulls, and not-nulls.
-//  ! For numeric columns, also count min, max, avg
+//  * For numeric columns, also count min, max, avg
 //  ! For text columns compute count(shortest value), count(longest value), avg len, ties broken alpha
 
 module.exports = class {
@@ -24,10 +24,19 @@ module.exports = class {
   update(stats, data, pos, rtype) {
     var s = stats[pos];
     s[data === null? 'nulls' : 'notnulls'] += 1;
+
+    if (data === null) { return; }
+
     switch (rtype) {
-      case 'number': console.log(typeof data + ', ' + rtype); s.avg_r += data; ++s.avg_c;
+
+      case 'number':
+        s.avg_r += data;
+        ++s.avg_c;
+        s.min = (typeof s.min === 'undefined')? data : Math.min(data, s.min);
+        s.max = (typeof s.max === 'undefined')? data : Math.max(data, s.min);
+
     }
-    console.log(stats);
+
   }
 
   newstat(kind) {
