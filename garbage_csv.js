@@ -1,4 +1,7 @@
 
+// assumes the csv has been newline normalized and fits the example generator
+// handles a subset of csv
+//
 // split rows on commas; replace empties with nulls
 // remove trailing ) from header cells, split on space-(, return split
 // remove framing "" from header row, split on ",", return header cell subsplit
@@ -6,15 +9,32 @@
 //
 // p_csv is for bulk processing; mostly use p_row for streaming
 // p_csv also implies two passes over the data: one to parse, one to act (ew)
+//
+// assume unknown col types are throw
 
-is_num     = (num) => !isNaN(parseFloat(num)) && isFinite(num);
-num_if_num = (inp) => { var pf = parseFloat(inp); return (!isNaN(pf) && isFinite(inp))? pf : inp; }
+function by_type(data, rtype) {
+  switch (rtype) {
+    case 'text'   : return data;
+    case 'number' : return num_or_throw(data);
+  }
+}
 
-p_row      = (row) => row.split(',').map(cell => (cell === '')? null : num_if_num(cell) );
-p_hdr_cell = (hc)  => hc.substring(0, hc.length-1).split(' (')
-p_header   = (hdr) => hdr.substring(1, hdr.length-1).split('","').map(p_hdr_cell);
-p_csv      = (csv) => csv.split('\n').map( (row,idx) => idx? p_row(row) : p_header(row) );
+num_or_throw = (inp) => { var pf = parseFloat(inp); if (!isNaN(pf) && isFinite(inp)) { return pf; } else { throw 'requires numeric'; } }
 
+p_row        = (r,h) => r.split(',').map( (cell,i) => (cell === '')? null : by_type(cell, h[i][1]) );
+p_hdr_cell   = (hc)  => hc.substring(0, hc.length-1).split(' (')
+p_header     = (hdr) => hdr.substring(1, hdr.length-1).split('","').map(p_hdr_cell);
+
+function p_csv(csv) {
+
+  var rows    = csv.split('\n'),
+      headers = p_header(rows.shift()),
+      row_h   = function(row) { return p_row(row, headers); },
+      data    = rows.map(row_h);
+
+  return {headers: headers, data: data};
+
+}
 
 
 
