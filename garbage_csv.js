@@ -3,6 +3,9 @@
 // remove trailing ) from header cells, split on space-(, return split
 // remove framing "" from header row, split on ",", return header cell subsplit
 // a csv is a header row then a series of rows
+//
+// p_csv is for bulk processing; mostly use p_row for streaming
+// p_csv also implies two passes over the data: one to parse, one to act (ew)
 
 p_row      = (row) => row.split(',').map(cell => (cell === '')? null : cell );
 p_hdr_cell = (hc)  => hc.substring(0, hc.length-1).split(' (')
