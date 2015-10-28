@@ -36,14 +36,10 @@
 
 
 
-var CLA = {};
-process.argv.forEach( function(value, index, _array) {
-  if (index > 1) { CLA[value] = true; } } // filter out argv[0],[1]
-);
-
-console.log(JSON.stringify(CLA));
-
 var cdata = '"sessionId (text)","page (text)","latency (number)","timeOnPage (number)"\nb9130c05,welcome,7,31.032\nb89c60d2,welcome,9,31.891';
 
-var CSV = require('./garbage_csv.js');
+var CSV = require('./garbage_csv.js'),
+    CLA = require('./garbage_cla.js');
+
+console.log(JSON.stringify(CLA));
 console.log(CSV.p_csv(cdata));
