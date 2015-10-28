@@ -57,7 +57,7 @@ class csv_parser {
     var row_h    = row => this.p_row(row, this.headers);
     this.data    = this.rows.map(row_h);
 
-    return {headers: this.headers, data: this.data};
+    return {headers: this.headers, data: this.data, stats: this.stat.finalize(this.stats) };
 
   }
 

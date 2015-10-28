@@ -21,6 +21,13 @@ module.exports = class {
     return stats;
   }
 
+  isLonger(one, other) {
+    console.log('comparing "' + one.toString() + '" to "' + other.toString() + '"');
+    if (one.length > other.length)    { return true; }
+    if (one.length < other.length)    { return false; }
+    return one > other;
+  }
+
   update(stats, data, pos, rtype) {
     var s = stats[pos];
     s[data === null? 'nulls' : 'notnulls'] += 1;
@@ -34,15 +41,35 @@ module.exports = class {
         ++s.avg_c;
         s.min = (typeof s.min === 'undefined')? data : Math.min(data, s.min);
         s.max = (typeof s.max === 'undefined')? data : Math.max(data, s.min);
+        break;
+
+      case 'text':
+        s.avg_l_r += data.length;
+        ++s.avg_l_c;
+
+        if      (typeof s.longest.val === 'undefined')  { s.longest.val = data;  s.longest.count = 1; }
+        else if (data === s.longest.val)                { ++s.longest.count; }
+        else if (this.isLonger(data, s.longest.val))    { s.longest.val = data;  s.longest.count = 1; }
+
+        if      (typeof s.shortest.val === 'undefined') { s.shortest.val = data; s.shortest.count = 1; }
+        else if (data === s.shortest.val)               { ++s.shortest.count; }
+        else if (this.isLonger(s.shortest.val, data))   { s.shortest.val = data; s.shortest.count = 1; }
+
+        break;
 
     }
 
+  }
+
+  finalize(stat_counters) {
+    return stat_counters;
   }
 
   newstat(kind) {
     switch (kind) {
 
       case 'text': return {
+        kind     : 'text',
         nulls    : 0,
         notnulls : 0,
         avg_l_r  : 0,
@@ -58,6 +85,7 @@ module.exports = class {
       };
 
       case 'number' : return {
+        kind     : 'number',
         nulls    : 0,
         notnulls : 0,
         avg_r    : 0,
